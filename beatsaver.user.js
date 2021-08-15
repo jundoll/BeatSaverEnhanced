@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         BeatSaverEnhanced
 // @namespace    http://tampermonkey.net/
-// @version      0.1
+// @version      0.2
 // @description  enhance beatsaver-site
 // @author       jundoll
 // @match        https://beatsaver.com/*
@@ -21,7 +21,8 @@
 
     class Global {
     }
-    Global.baseurls = ["https://beatsaver.com"]
+    Global.baseurls = "https://beatsaver.com/"
+    Global.mapurls = Global.baseurls + "maps/"
 
     function create(tag, attrs, ...children) {
         if (tag === undefined) {
@@ -156,19 +157,17 @@
         return new Promise(resolve => setTimeout(resolve, ms));
     }
     async function modify_page() {
-        if (!is_target_page()) {
-            return;
-        }
+        console.log("modify")
 
         // 追加処理1
         var MetaDataList = document.querySelector("div.list-group");
         while(MetaDataList == null){
-            await sleep(1*1000)
+            await sleep(1*500)
             MetaDataList = document.querySelector("div.list-group");
         }
-        into(MetaDataList, create("div", { class: "list-group-item d-flex justify-content-between"}, "Download"));
+        into(MetaDataList, create("div", { class: "list-group-item d-flex justify-content-between"}, "Downloads"));
         var MetaDataListDL = document.querySelectorAll("div.list-group-item.d-flex.justify-content-between");
-        into(MetaDataListDL[MetaDataListDL.length-1], create("span", { class: "text-truncate ml-4" }, "loading"));
+        into(MetaDataListDL[MetaDataListDL.length-1], create("span", { class: "text-truncate ml-4" }, "Now loading"));
 
         // 追加内容取得
         var id = get_id()
@@ -195,26 +194,42 @@
             return;
         }
         //has_loaded_body = true;
+        console.log("load_body")
         modify_page();
     }
     function onload() {
+        console.log("onload")
+        on_load_head();
+        on_load_body();
+    }
+    /*
+    function onload2() {
+        console.log("onload2")
         on_load_head();
         on_load_body();
     }
 
-    var href = location.href;
+    var baseurls_regexp = RegExp(Global.baseurls+"$")
+    var mapurls_regexp = RegExp(Global.mapurls+'[0-9a-z]+$')
+    var target_href = mapurls_regexp
     const observer = new MutationObserver(function () {
         // 処理
         //if (is_target_page() && document.querySelector("div.list-group")) {
         //}
-        if(href !== location.href) {
-            href = location.href;
-            onload()
+        if(target_href.exec(location.href)) {
+            console.log("observer")
+            target_href = baseurls_regexp
+            //onload2()
+        }
+        if(target_href.exec(location.href)) {
+            console.log("reset")
+            target_href = mapurls_regexp
         }
     })
-    observer.observe(document, { childList: true })
+    observer.observe(document, { childList: true, subtree: true })
+    */
 
-    // 初期読み込み時
+    // マップページで更新した時
     window.addEventListener("load", onload);
 
 
