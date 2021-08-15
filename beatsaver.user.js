@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         BeatSaverEnhanced
 // @namespace    http://tampermonkey.net/
-// @version      0.2
+// @version      0.3
 // @description  enhance beatsaver-site
 // @author       jundoll
 // @match        https://beatsaver.com/*
@@ -117,13 +117,6 @@
         }
         return elem;
     }
-    function is_target_page() {
-        var comparator = false
-        for (const url of Global.baseurls) {
-            comparator = comparator || window.location.href.toLowerCase().startsWith(url + "/maps")
-        }
-        return comparator
-    }
     function get_id() {
         var url_split = window.location.href.split('/');
         var id = url_split[url_split.length-1]
@@ -197,40 +190,47 @@
         console.log("load_body")
         modify_page();
     }
-    function onload() {
-        console.log("onload")
-        on_load_head();
-        on_load_body();
+    function onload_from_mapurl() {
+        if(mapurls_regexp.exec(location.href)){
+            console.log("onload_from_mapurl")
+            on_load_head();
+            on_load_body();
+        }
     }
-    /*
-    function onload2() {
-        console.log("onload2")
+    function onload_from_other() {
+        console.log("onload_from_other")
         on_load_head();
         on_load_body();
     }
 
-    var baseurls_regexp = RegExp(Global.baseurls+"$")
+    // マップページに遷移した時
+    var otherurls_regexp = RegExp(Global.baseurls+"(?!maps).*$")
     var mapurls_regexp = RegExp(Global.mapurls+'[0-9a-z]+$')
-    var target_href = mapurls_regexp
+    var target_href = ""
+    console.log(otherurls_regexp.exec(location.href))
+    console.log(mapurls_regexp.exec(location.href))
+    if (mapurls_regexp.exec(location.href)) {
+        target_href = otherurls_regexp
+    } else {
+        target_href = mapurls_regexp
+    }
     const observer = new MutationObserver(function () {
         // 処理
-        //if (is_target_page() && document.querySelector("div.list-group")) {
-        //}
         if(target_href.exec(location.href)) {
-            console.log("observer")
-            target_href = baseurls_regexp
-            //onload2()
-        }
-        if(target_href.exec(location.href)) {
-            console.log("reset")
-            target_href = mapurls_regexp
+            if (target_href == mapurls_regexp) {
+                console.log("observer")
+                onload_from_other()
+                target_href = otherurls_regexp
+            } else {
+                console.log("reset")
+                target_href = mapurls_regexp
+            }
         }
     })
     observer.observe(document, { childList: true, subtree: true })
-    */
 
     // マップページで更新した時
-    window.addEventListener("load", onload);
+    window.addEventListener("load", onload_from_mapurl);
 
 
 })();
