@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         BeatSaverEnhanced
 // @namespace    http://tampermonkey.net/
-// @version      0.3
+// @version      0.31
 // @description  enhance beatsaver-site
 // @author       jundoll
 // @match        https://beatsaver.com/*
@@ -150,7 +150,7 @@
         return new Promise(resolve => setTimeout(resolve, ms));
     }
     async function modify_page() {
-        console.log("modify")
+        //console.log("modify")
 
         // 追加処理1
         var MetaDataList = document.querySelector("div.list-group");
@@ -160,7 +160,7 @@
         }
         into(MetaDataList, create("div", { class: "list-group-item d-flex justify-content-between"}, "Downloads"));
         var MetaDataListDL = document.querySelectorAll("div.list-group-item.d-flex.justify-content-between");
-        into(MetaDataListDL[MetaDataListDL.length-1], create("span", { class: "text-truncate ml-4" }, "Now loading"));
+        into(MetaDataListDL[MetaDataListDL.length-1], create("span", { class: "text-truncate ml-4" }, "loading..."));
 
         // 追加内容取得
         var id = get_id()
@@ -187,18 +187,18 @@
             return;
         }
         //has_loaded_body = true;
-        console.log("load_body")
+        //console.log("load_body")
         modify_page();
     }
     function onload_from_mapurl() {
         if(mapurls_regexp.exec(location.href)){
-            console.log("onload_from_mapurl")
+            //console.log("onload_from_mapurl")
             on_load_head();
             on_load_body();
         }
     }
     function onload_from_other() {
-        console.log("onload_from_other")
+        //onsole.log("onload_from_other")
         on_load_head();
         on_load_body();
     }
@@ -207,8 +207,8 @@
     var otherurls_regexp = RegExp(Global.baseurls+"(?!maps).*$")
     var mapurls_regexp = RegExp(Global.mapurls+'[0-9a-z]+$')
     var target_href = ""
-    console.log(otherurls_regexp.exec(location.href))
-    console.log(mapurls_regexp.exec(location.href))
+    //console.log(otherurls_regexp.exec(location.href))
+    //console.log(mapurls_regexp.exec(location.href))
     if (mapurls_regexp.exec(location.href)) {
         target_href = otherurls_regexp
     } else {
@@ -218,11 +218,11 @@
         // 処理
         if(target_href.exec(location.href)) {
             if (target_href == mapurls_regexp) {
-                console.log("observer")
+                //console.log("observer")
                 onload_from_other()
                 target_href = otherurls_regexp
             } else {
-                console.log("reset")
+                //console.log("reset")
                 target_href = mapurls_regexp
             }
         }
